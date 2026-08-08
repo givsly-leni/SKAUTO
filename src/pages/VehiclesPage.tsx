@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { listVehicles } from '../lib/vehicles'
 import type { JobStatus, Vehicle } from '../lib/types'
 import { STATUS_META, STATUS_ORDER } from '../lib/types'
-import { formatCar, formatDate, formatMoney } from '../lib/format'
+import {
+  formatCar,
+  formatDate,
+  formatDateTime,
+  formatMoney,
+  isPast,
+} from '../lib/format'
 import { Link } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
 
@@ -23,7 +29,7 @@ export default function VehiclesPage() {
   const visible = useMemo(() => {
     if (!vehicles) return []
     const q = query.trim().toLowerCase()
-    return vehicles.filter((v) => {
+    const rows = vehicles.filter((v) => {
       if (filter !== 'all' && v.status !== filter) return false
       if (!q) return true
       return (
@@ -35,6 +41,16 @@ export default function VehiclesPage() {
         (v.customer_phone ?? '').toLowerCase().includes(q)
       )
     })
+
+    // Scheduled jobs are more useful ordered by when they're due.
+    if (filter === 'scheduled') {
+      rows.sort((a, b) => {
+        if (!a.scheduled_at) return 1
+        if (!b.scheduled_at) return -1
+        return a.scheduled_at.localeCompare(b.scheduled_at)
+      })
+    }
+    return rows
   }, [vehicles, query, filter])
 
   if (error) return <p className="form-error">{error}</p>
@@ -107,9 +123,17 @@ export default function VehiclesPage() {
                     {v.customer_name}
                     {v.customer_phone ? ` · ${v.customer_phone}` : ''}
                   </span>
-                  <span className="muted small">
-                    In {formatDate(v.registered_at)} · {formatMoney(v.cost)}
-                  </span>
+                  {v.status === 'scheduled' && v.scheduled_at ? (
+                    <span
+                      className={isPast(v.scheduled_at) ? 'appt-inline overdue' : 'appt-inline'}
+                    >
+                      {formatDateTime(v.scheduled_at)}
+                    </span>
+                  ) : (
+                    <span className="muted small">
+                      In {formatDate(v.registered_at)} · {formatMoney(v.cost)}
+                    </span>
+                  )}
                 </div>
                 <div className="row-side">
                   <StatusBadge status={v.status} />

@@ -13,6 +13,7 @@ export interface Vehicle {
   odometer_km: number | null
   vehicle_year: number | null
   status: JobStatus
+  scheduled_at: string | null
   cost: number
   notes: string | null
   restored_parts: string[]
@@ -32,6 +33,7 @@ export interface VehicleInput {
   odometer_km: string
   vehicle_year: string
   status: JobStatus
+  scheduled_at: string
   cost: string
   notes: string
   restored_parts: string[]
@@ -56,6 +58,7 @@ export const emptyVehicleInput = (): VehicleInput => ({
   odometer_km: '',
   vehicle_year: '',
   status: 'scheduled',
+  scheduled_at: '',
   cost: '',
   notes: '',
   restored_parts: [],

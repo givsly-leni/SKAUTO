@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { listMyVehicles } from '../../lib/account'
 import type { Vehicle } from '../../lib/types'
-import { formatCar, formatDate, formatKm, formatMoney } from '../../lib/format'
+import {
+  formatCar,
+  formatDate,
+  formatDateTime,
+  formatKm,
+  formatMoney,
+} from '../../lib/format'
 import { STATUS_META } from '../../lib/types'
 import StatusBadge from '../../components/StatusBadge'
 
@@ -16,6 +22,13 @@ function VehicleCard({ v }: { v: Vehicle }) {
         </div>
         <StatusBadge status={v.status} />
       </header>
+
+      {v.scheduled_at && v.status === 'scheduled' && (
+        <div className="appointment">
+          <span className="appointment-label">Your appointment</span>
+          <strong>{formatDateTime(v.scheduled_at)}</strong>
+        </div>
+      )}
 
       <div
         className="cust-progress"

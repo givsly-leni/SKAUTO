@@ -34,6 +34,7 @@ create table if not exists public.vehicles (
 
   -- job
   status public.job_status not null default 'scheduled',
+  scheduled_at timestamptz,   -- appointment for a scheduled job
   cost numeric(10,2) not null default 0,
   notes text,
   restored_parts text[] not null default '{}',
@@ -49,6 +50,7 @@ create table if not exists public.vehicles (
 create index if not exists vehicles_user_id_idx on public.vehicles (user_id);
 create index if not exists vehicles_status_idx on public.vehicles (user_id, status);
 create index if not exists vehicles_registered_at_idx on public.vehicles (user_id, registered_at desc);
+create index if not exists vehicles_scheduled_at_idx on public.vehicles (user_id, scheduled_at) where scheduled_at is not null;
 create index if not exists vehicles_plate_idx on public.vehicles (user_id, lower(license_plate));
 create index if not exists vehicles_make_model_idx on public.vehicles (user_id, lower(make), lower(model));
 

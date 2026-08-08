@@ -309,6 +309,20 @@ export default function VehicleFormPage({ id }: { id?: string }) {
             </div>
           </div>
 
+          {form.status === 'scheduled' && (
+            <label className="field">
+              <span>Appointment</span>
+              <input
+                type="datetime-local"
+                value={form.scheduled_at}
+                onChange={(e) => set('scheduled_at', e.target.value)}
+              />
+              <span className="hint">
+                When the car is booked in. Your customer sees this too.
+              </span>
+            </label>
+          )}
+
           <label className="field">
             <span>Cost</span>
             <input

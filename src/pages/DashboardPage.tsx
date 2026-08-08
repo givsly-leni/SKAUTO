@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { listVehicles } from '../lib/vehicles'
 import type { Vehicle } from '../lib/types'
 import { STATUS_META, STATUS_ORDER } from '../lib/types'
-import { formatCar, formatMoney, formatDate } from '../lib/format'
+import { formatCar, formatMoney, formatDate, formatDateTime } from '../lib/format'
 import { Link } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
 
@@ -84,7 +84,9 @@ export default function DashboardPage() {
                 <div className="row-side">
                   <StatusBadge status={v.status} />
                   <span className="muted small">
-                    {formatDate(v.registered_at)}
+                    {v.status === 'scheduled' && v.scheduled_at
+                      ? formatDateTime(v.scheduled_at)
+                      : formatDate(v.registered_at)}
                   </span>
                 </div>
               </Link>

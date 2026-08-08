@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { deleteVehicle, getVehicle } from '../lib/vehicles'
 import type { Vehicle } from '../lib/types'
-import { formatCar, formatDate, formatKm, formatMoney } from '../lib/format'
+import {
+  formatCar,
+  formatDate,
+  formatDateTime,
+  formatKm,
+  formatMoney,
+} from '../lib/format'
 import { Link, navigate } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
 
@@ -72,6 +78,13 @@ export default function VehicleDetailPage({ id }: { id: string }) {
               Cancel
             </button>
           </div>
+        </div>
+      )}
+
+      {vehicle.scheduled_at && (
+        <div className="appointment">
+          <span className="appointment-label">Booked in</span>
+          <strong>{formatDateTime(vehicle.scheduled_at)}</strong>
         </div>
       )}
 

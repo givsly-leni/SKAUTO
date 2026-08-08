@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient'
 import type { Vehicle, VehicleInput } from './types'
+import { fromDateTimeLocal, toDateTimeLocal } from './format'
 
 /**
  * Data access layer. Every query is automatically scoped to the signed-in
@@ -43,6 +44,7 @@ function toRow(input: VehicleInput) {
     odometer_km: input.odometer_km === '' ? null : Number(input.odometer_km),
     vehicle_year: input.vehicle_year === '' ? null : Number(input.vehicle_year),
     status: input.status,
+    scheduled_at: fromDateTimeLocal(input.scheduled_at),
     cost: input.cost === '' ? 0 : Number(input.cost),
     notes: input.notes.trim() || null,
     restored_parts: input.restored_parts,
@@ -97,6 +99,7 @@ export function vehicleToInput(v: Vehicle): VehicleInput {
     odometer_km: v.odometer_km != null ? String(v.odometer_km) : '',
     vehicle_year: v.vehicle_year != null ? String(v.vehicle_year) : '',
     status: v.status,
+    scheduled_at: toDateTimeLocal(v.scheduled_at),
     cost: v.cost != null ? String(v.cost) : '',
     notes: v.notes ?? '',
     restored_parts: v.restored_parts ?? [],

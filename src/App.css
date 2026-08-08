@@ -980,3 +980,45 @@ textarea {
   margin-top: 12px;
   gap: 12px;
 }
+
+/* ---------- appointment ---------- */
+.appointment {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(250, 204, 21, 0.1);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+}
+
+.appointment-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.appointment strong {
+  color: var(--accent-light);
+  font-size: 1rem;
+}
+
+.appt-inline {
+  font-size: 0.78rem;
+  color: var(--accent-light);
+  font-weight: 500;
+}
+
+.appt-inline.overdue {
+  color: #fca5a5;
+}
+
+/* the native date/time picker indicator is invisible on a dark background */
+input[type='datetime-local']::-webkit-calendar-picker-indicator,
+input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  cursor: pointer;
+}
