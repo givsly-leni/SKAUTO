@@ -4,6 +4,7 @@ import { isSupabaseConfigured } from './lib/supabaseClient'
 import { matchRoute, usePath, Link } from './lib/router'
 import Nav from './components/Nav'
 import AuthPage from './pages/AuthPage'
+import CustomerApp from './pages/customer/CustomerApp'
 import DashboardPage from './pages/DashboardPage'
 import VehiclesPage from './pages/VehiclesPage'
 import VehicleDetailPage from './pages/VehicleDetailPage'
@@ -58,7 +59,7 @@ function MissingConfig() {
 }
 
 export default function App() {
-  const { session, loading } = useAuth()
+  const { session, profile, loading } = useAuth()
 
   if (!isSupabaseConfigured) return <MissingConfig />
 
@@ -71,6 +72,17 @@ export default function App() {
   }
 
   if (!session) return <AuthPage />
+
+  // The profile carries the role, which decides which app to show.
+  if (!profile) {
+    return (
+      <div className="splash">
+        <img src="/logo.png" alt="SK Auto Garage" className="splash-logo" />
+      </div>
+    )
+  }
+
+  if (profile.role === 'customer') return <CustomerApp />
 
   return (
     <div className="app">

@@ -19,6 +19,15 @@ export default function Nav() {
 
   return (
     <>
+      {/* Phone: compact header — the tab bar has no room for Sign out */}
+      <header className="mobile-header">
+        <img src="/icons/icon-192.png" alt="" className="brand-logo-img" />
+        <span className="brand-name">SK AUTO GARAGE</span>
+        <button className="btn btn-ghost btn-sm" onClick={() => void signOut()}>
+          Sign out
+        </button>
+      </header>
+
       {/* Desktop / laptop: top bar */}
       <header className="topbar">
         <div className="topbar-inner">

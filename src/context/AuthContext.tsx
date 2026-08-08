@@ -8,10 +8,14 @@ import {
 import type { ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabaseClient'
+import { getProfile, runPendingClaim } from '../lib/account'
+import type { Profile } from '../lib/account'
 
 interface AuthValue {
   session: Session | null
+  profile: Profile | null
   loading: boolean
+  refreshProfile: () => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string) => Promise<{ needsConfirm: boolean }>
   signOut: () => Promise<void>
@@ -21,6 +25,7 @@ const AuthContext = createContext<AuthValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -42,10 +47,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  // The role decides which whole app the user gets, so it loads with the session.
+  useEffect(() => {
+    let active = true
+    if (!session) {
+      setProfile(null)
+      return
+    }
+    // A plate claimed during sign-up can only run once there's a session.
+    runPendingClaim()
+      .then(getProfile)
+      .then((p) => {
+        if (active) setProfile(p)
+      })
+      .catch(() => {
+        if (active) setProfile(null)
+      })
+    return () => {
+      active = false
+    }
+  }, [session])
+
   const value = useMemo<AuthValue>(
     () => ({
       session,
+      profile,
       loading,
+      async refreshProfile() {
+        setProfile(await getProfile())
+      },
       async signIn(email, password) {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -64,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error
       },
     }),
-    [session, loading],
+    [session, profile, loading],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

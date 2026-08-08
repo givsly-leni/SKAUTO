@@ -32,7 +32,10 @@ function toRow(input: VehicleInput) {
   return {
     customer_name: input.customer_name.trim(),
     customer_phone: input.customer_phone.trim() || null,
-    license_plate: input.license_plate.trim().toUpperCase(),
+    // Stored without separators so lookups always match (ΒΟΡ-6080 -> ΒΟΡ6080)
+    license_plate: input.license_plate
+      .toUpperCase()
+      .replace(/[\s\-._/]/g, ''),
     make: input.make.trim() || null,
     model: input.model.trim() || null,
     vin: input.vin.trim().toUpperCase() || null,
