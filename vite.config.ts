@@ -13,9 +13,9 @@ export default defineConfig({
       manifest: {
         name: 'SKAUTO',
         short_name: 'SKAUTO',
-        description: 'SKAUTO',
-        theme_color: '#111827',
-        background_color: '#111827',
+        description: 'Garage workshop records',
+        theme_color: '#0d0d0f',
+        background_color: '#0d0d0f',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',

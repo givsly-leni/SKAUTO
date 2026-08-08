@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { deleteVehicle, getVehicle } from '../lib/vehicles'
 import type { Vehicle } from '../lib/types'
-import { formatDate, formatMoney } from '../lib/format'
+import { formatDate, formatKm, formatMoney } from '../lib/format'
 import { Link, navigate } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
 
@@ -86,6 +86,14 @@ export default function VehicleDetailPage({ id }: { id: string }) {
         <div>
           <dt>VIN</dt>
           <dd className="mono">{vehicle.vin || '—'}</dd>
+        </div>
+        <div>
+          <dt>Engine number</dt>
+          <dd className="mono">{vehicle.engine_number || '—'}</dd>
+        </div>
+        <div>
+          <dt>Kilometers</dt>
+          <dd>{formatKm(vehicle.odometer_km)}</dd>
         </div>
         <div>
           <dt>Vehicle year</dt>

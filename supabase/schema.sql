@@ -26,6 +26,8 @@ create table if not exists public.vehicles (
   -- vehicle identity
   license_plate text not null,
   vin text,
+  engine_number text,
+  odometer_km integer,
   vehicle_date date,
 
   -- job

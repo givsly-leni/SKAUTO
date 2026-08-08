@@ -17,3 +17,8 @@ export function formatMoney(value: number | null | undefined): string {
     maximumFractionDigits: 2,
   })
 }
+
+export function formatKm(value: number | null | undefined): string {
+  if (value == null) return '—'
+  return `${Number(value).toLocaleString()} km`
+}

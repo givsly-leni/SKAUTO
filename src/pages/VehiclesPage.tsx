@@ -30,6 +30,7 @@ export default function VehiclesPage() {
         v.license_plate.toLowerCase().includes(q) ||
         v.customer_name.toLowerCase().includes(q) ||
         (v.vin ?? '').toLowerCase().includes(q) ||
+        (v.engine_number ?? '').toLowerCase().includes(q) ||
         (v.customer_phone ?? '').toLowerCase().includes(q)
       )
     })
@@ -49,7 +50,7 @@ export default function VehiclesPage() {
       <input
         className="search"
         type="search"
-        placeholder="Search plate, customer, VIN, phone…"
+        placeholder="Search plate, customer, VIN, engine no, phone…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />

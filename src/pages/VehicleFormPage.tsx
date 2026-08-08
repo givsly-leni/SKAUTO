@@ -117,6 +117,30 @@ export default function VehicleFormPage({ id }: { id?: string }) {
           </label>
 
           <label className="field">
+            <span>Engine number</span>
+            <input
+              type="text"
+              className="mono"
+              value={form.engine_number}
+              onChange={(e) => set('engine_number', e.target.value)}
+              autoCapitalize="characters"
+            />
+          </label>
+
+          <label className="field">
+            <span>Kilometers</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min="0"
+              step="1"
+              value={form.odometer_km}
+              onChange={(e) => set('odometer_km', e.target.value)}
+              placeholder="e.g. 184000"
+            />
+          </label>
+
+          <label className="field">
             <span>Vehicle year / date</span>
             <input
               type="date"
