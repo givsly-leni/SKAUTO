@@ -23,8 +23,12 @@ export default function Nav() {
       <header className="topbar">
         <div className="topbar-inner">
           <Link to="/" className="brand">
-            <span className="brand-logo">SK</span>
-            <span className="brand-name">SKAUTO</span>
+            <img
+              src="/icons/icon-192.png"
+              alt=""
+              className="brand-logo-img"
+            />
+            <span className="brand-name">SK AUTO GARAGE</span>
           </Link>
 
           <nav className="topbar-links">

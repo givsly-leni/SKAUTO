@@ -80,16 +80,17 @@
   font-weight: 700;
 }
 
-.brand-logo {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
+.brand-logo-img {
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
-  background: var(--accent);
-  color: var(--accent-contrast);
-  font-size: 0.8rem;
-  font-weight: 700;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
 }
 
 .topbar-links {
@@ -677,26 +678,22 @@ textarea {
   text-align: center;
 }
 
-.auth-logo {
-  display: inline-grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: var(--accent);
-  color: var(--accent-contrast);
-  font-weight: 700;
-  font-size: 1.1rem;
+.auth-logo-img {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
-.auth-brand h1 {
-  margin: 12px 0 2px;
-  font-size: 1.4rem;
-  letter-spacing: 0.04em;
+.splash-logo {
+  width: 70%;
+  max-width: 300px;
+  height: auto;
 }
 
 .auth-brand p {
-  margin: 0;
+  margin: 6px 0 0;
   color: var(--text-muted);
   font-size: 0.88rem;
 }

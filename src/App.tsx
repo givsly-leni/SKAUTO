@@ -41,8 +41,7 @@ function MissingConfig() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="auth-brand">
-          <span className="auth-logo">SK</span>
-          <h1>SKAUTO</h1>
+          <img src="/logo.png" alt="SK Auto Garage" className="auth-logo-img" />
         </div>
         <p className="form-error">
           This build is missing its database credentials, so it can not connect
@@ -66,7 +65,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="splash">
-        <span className="auth-logo">SK</span>
+        <img src="/logo.png" alt="SK Auto Garage" className="splash-logo" />
       </div>
     )
   }

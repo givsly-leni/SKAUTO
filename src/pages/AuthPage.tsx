@@ -55,9 +55,8 @@ export default function AuthPage() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="auth-brand">
-          <span className="auth-logo">SK</span>
-          <h1>SKAUTO</h1>
-          <p>Garage workshop records</p>
+          <img src="/logo.png" alt="SK Auto Garage" className="auth-logo-img" />
+          <p>Workshop records</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
