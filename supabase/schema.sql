@@ -349,3 +349,38 @@ create policy "Customers read visits for claimed vehicles" on public.service_vis
          and cp.user_id = auth.uid()
     )
   );
+
+-- The details entered when a car is first registered ARE its first job, so
+-- registering a vehicle writes visit #1 automatically. Without this the
+-- timeline started empty and the original work vanished from view once later
+-- visits were added. SECURITY DEFINER so RLS doesn't block the insert;
+-- user_id is copied from the vehicle, so a visit can never be misattributed.
+create or replace function public.log_first_visit()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  -- Skip cars added with no job details at all — an empty entry is just noise.
+  if new.odometer_km is null
+     and coalesce(new.cost, 0) = 0
+     and coalesce(array_length(new.restored_parts, 1), 0) = 0
+     and coalesce(nullif(trim(new.notes), ''), '') = ''
+  then
+    return new;
+  end if;
+
+  insert into public.service_visits (
+    vehicle_id, user_id, visited_at, odometer_km, cost, restored_parts, notes
+  )
+  values (
+    new.id, new.user_id, coalesce(new.registered_at::date, current_date),
+    new.odometer_km, coalesce(new.cost, 0),
+    coalesce(new.restored_parts, '{}'), new.notes
+  );
+  return new;
+end;
+$$;
+
+revoke all on function public.log_first_visit() from public, anon, authenticated;
+
+create trigger vehicles_log_first_visit
+  after insert on public.vehicles
+  for each row execute function public.log_first_visit();

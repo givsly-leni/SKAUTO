@@ -291,7 +291,7 @@ export default function VehicleFormPage({ id }: { id?: string }) {
         </fieldset>
 
         <fieldset>
-          <legend>Job</legend>
+          <legend>{editing ? 'Job' : 'First visit'}</legend>
 
           <div className="field">
             <span>Status</span>
@@ -356,8 +356,9 @@ export default function VehicleFormPage({ id }: { id?: string }) {
         </fieldset>
 
         <p className="hint">
-          The registration date is filled in automatically when the record is
-          created.
+          {editing
+            ? 'Use "Add history" on the vehicle page to log a new visit — editing here changes the current details rather than adding to the history.'
+            : 'The registration date fills in automatically, and these details are saved as the first entry in the vehicle history.'}
         </p>
 
         {error && <p className="form-error">{error}</p>}

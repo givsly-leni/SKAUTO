@@ -71,6 +71,11 @@ cost, parts changed and notes — so a car returning after a year keeps its full
 record. Adding a visit bumps the vehicle's headline mileage forward, but never
 backwards.
 
+Registering a car writes its first history entry automatically (a database
+trigger), because the details typed on the registration form *are* the first
+job — otherwise that work disappeared from view as soon as a second visit was
+logged. Cars added with no job details don't get an empty entry.
+
 Customers see the same timeline read-only for cars they've claimed.
 
 ## Pages
