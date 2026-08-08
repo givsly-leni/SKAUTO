@@ -91,7 +91,7 @@ export default function VehicleDetailPage({ id }: { id: string }) {
           <dd className="mono">{vehicle.vin || '—'}</dd>
         </div>
         <div>
-          <dt>Engine number</dt>
+          <dt>Engine no / code</dt>
           <dd className="mono">{vehicle.engine_number || '—'}</dd>
         </div>
         <div>
@@ -99,8 +99,8 @@ export default function VehicleDetailPage({ id }: { id: string }) {
           <dd>{formatKm(vehicle.odometer_km)}</dd>
         </div>
         <div>
-          <dt>Vehicle year</dt>
-          <dd>{formatDate(vehicle.vehicle_date)}</dd>
+          <dt>Year</dt>
+          <dd>{vehicle.vehicle_year ?? '—'}</dd>
         </div>
         <div>
           <dt>Cost</dt>

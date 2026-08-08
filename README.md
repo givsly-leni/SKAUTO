@@ -29,7 +29,8 @@ register form disappears. Nobody else can create an account on the live site.
 row-level-security policies mean a signed-in account can only ever read or
 write its own records — the client never has to filter by user.
 
-**Fields.** Customer name and phone, license plate, VIN, vehicle year/date,
+**Fields.** Customer name and phone, license plate, make, model, year, VIN,
+engine number/code, kilometers,
 job status (scheduled / in progress / completed), cost, restored parts (a
 list), and free-text notes. The registration date is set automatically by the
 database, as is `updated_at` on every edit.
@@ -42,8 +43,18 @@ CORS-enabled so the browser calls it directly. `src/lib/vehicleApi.ts` wraps
 three uses:
 
 - list makes across cars, trucks and MPVs
-- list models for a chosen make
-- decode a VIN into make / model / year, plus engine and body details
+- list models for a chosen make, narrowed by year when one is set (BMW returns
+  63 models for 1999 versus 258 overall)
+- decode a VIN into make / model / year / engine code, plus body and fuel details
+
+Model years are a generated range rather than an API call — vPIC has no
+"list years" endpoint, since years are just a range.
+
+**On engine numbers.** The serial physically stamped on an engine block is not
+published in any public database, so it can't be looked up. What the VIN
+decoder does return is the engine *type code* (`J30A4`, `4ZZ`), which is what
+the engine field is actually used for here — so decoding a VIN fills it
+automatically when vPIC knows it, and it stays hand-editable otherwise.
 
 Responses are cached in `localStorage` for 30 days, so the pickers are instant
 after first use and keep working offline.

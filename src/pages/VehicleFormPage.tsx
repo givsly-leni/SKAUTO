@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import {
   createVehicle,
@@ -9,7 +9,13 @@ import {
 import type { JobStatus, VehicleInput } from '../lib/types'
 import { STATUS_META, STATUS_ORDER, emptyVehicleInput } from '../lib/types'
 import { Link, navigate } from '../lib/router'
-import { decodeVin, fetchMakes, fetchModels } from '../lib/vehicleApi'
+import {
+  decodeVin,
+  fetchMakes,
+  fetchModels,
+  fetchModelsForMakeYear,
+  listModelYears,
+} from '../lib/vehicleApi'
 import PartsInput from '../components/PartsInput'
 import Combobox from '../components/Combobox'
 
@@ -50,6 +56,7 @@ export default function VehicleFormPage({ id }: { id?: string }) {
   }, [])
 
   const make = form.make
+  const year = form.vehicle_year
   useEffect(() => {
     if (!make.trim()) {
       setModels([])
@@ -57,12 +64,18 @@ export default function VehicleFormPage({ id }: { id?: string }) {
     }
     const ctrl = new AbortController()
     setModelsLoading(true)
-    fetchModels(make, ctrl.signal)
+    // With a year the list is far tighter and drops other-era models.
+    const request = /^\d{4}$/.test(year)
+      ? fetchModelsForMakeYear(make, year, ctrl.signal)
+      : fetchModels(make, ctrl.signal)
+    request
       .then(setModels)
       .catch(() => setModels([]))
       .finally(() => setModelsLoading(false))
     return () => ctrl.abort()
-  }, [make])
+  }, [make, year])
+
+  const yearOptions = useMemo(() => listModelYears(), [])
 
   async function handleDecodeVin() {
     setLookupNote(null)
@@ -77,11 +90,17 @@ export default function VehicleFormPage({ id }: { id?: string }) {
         ...prev,
         make: details.make || prev.make,
         model: details.model || prev.model,
-        // The database gives a model year; keep any date already entered.
-        vehicle_date:
-          prev.vehicle_date || (details.year ? `${details.year}-01-01` : ''),
+        vehicle_year: details.year || prev.vehicle_year,
+        // Only fill the engine field if it's still empty — never overwrite
+        // something read off the block by hand.
+        engine_number: prev.engine_number || details.engineCode,
       }))
-      const extras = [details.bodyClass, details.engine, details.fuel]
+      const extras = [
+        details.engineCode,
+        details.bodyClass,
+        details.engine,
+        details.fuel,
+      ]
         .filter(Boolean)
         .join(' · ')
       setLookupNote(
@@ -189,6 +208,16 @@ export default function VehicleFormPage({ id }: { id?: string }) {
           </div>
 
           <div className="field">
+            <span>Year</span>
+            <Combobox
+              value={form.vehicle_year}
+              onChange={(v) => set('vehicle_year', v.replace(/[^0-9]/g, ''))}
+              options={yearOptions}
+              placeholder="Select or type a year"
+            />
+          </div>
+
+          <div className="field">
             <span>Model</span>
             <Combobox
               value={form.model}
@@ -231,14 +260,18 @@ export default function VehicleFormPage({ id }: { id?: string }) {
           </div>
 
           <label className="field">
-            <span>Engine number</span>
+            <span>Engine number / code</span>
             <input
               type="text"
               className="mono"
               value={form.engine_number}
               onChange={(e) => set('engine_number', e.target.value)}
               autoCapitalize="characters"
+              placeholder="e.g. 4ZZ"
             />
+            <span className="hint">
+              Filled from the VIN when the database knows the engine code.
+            </span>
           </label>
 
           <label className="field">
@@ -254,14 +287,7 @@ export default function VehicleFormPage({ id }: { id?: string }) {
             />
           </label>
 
-          <label className="field">
-            <span>Vehicle year / date</span>
-            <input
-              type="date"
-              value={form.vehicle_date}
-              onChange={(e) => set('vehicle_date', e.target.value)}
-            />
-          </label>
+
         </fieldset>
 
         <fieldset>

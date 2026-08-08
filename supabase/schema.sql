@@ -30,7 +30,7 @@ create table if not exists public.vehicles (
   vin text,
   engine_number text,
   odometer_km integer,
-  vehicle_date date,
+  vehicle_year integer,
 
   -- job
   status public.job_status not null default 'scheduled',
@@ -40,7 +40,10 @@ create table if not exists public.vehicles (
 
   -- filled in automatically
   registered_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+
+  constraint vehicles_vehicle_year_check
+    check (vehicle_year is null or (vehicle_year between 1900 and 2100))
 );
 
 create index if not exists vehicles_user_id_idx on public.vehicles (user_id);

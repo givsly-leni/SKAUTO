@@ -127,10 +127,53 @@ export async function fetchModels(
   return models
 }
 
+/**
+ * Model years to offer. vPIC has no "list all years" endpoint — years are a
+ * plain range — so this is generated rather than fetched. Newest first, since
+ * that's what a workshop reaches for most.
+ */
+export function listModelYears(earliest = 1950): string[] {
+  const newest = new Date().getFullYear() + 1
+  const years: string[] = []
+  for (let y = newest; y >= earliest; y--) years.push(String(y))
+  return years
+}
+
+/**
+ * Models for a make in a specific year. Much tighter than the full catalogue —
+ * BMW returns 63 models for 1999 versus 258 overall — which matters because
+ * the unfiltered list mixes cars and motorcycles together.
+ */
+export async function fetchModelsForMakeYear(
+  make: string,
+  year: string,
+  signal?: AbortSignal,
+): Promise<string[]> {
+  const key = `models:${make.toLowerCase()}:${year}`
+  const cached = readCache<string[]>(key)
+  if (cached) return cached
+
+  const data = await getJson<ModelsResponse>(
+    `${BASE}/GetModelsForMakeYear/make/${encodeURIComponent(make)}/modelyear/${encodeURIComponent(year)}?format=json`,
+    signal,
+  )
+
+  const models = [
+    ...new Set(
+      (data.Results ?? []).map((r) => (r.Model_Name ?? '').trim()).filter(Boolean),
+    ),
+  ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+
+  writeCache(key, models)
+  return models
+}
+
 export interface VinDetails {
   make: string
   model: string
   year: string
+  /** Engine family/type code, e.g. J30A4 — not the serial stamped on the block. */
+  engineCode: string
   bodyClass: string
   engine: string
   fuel: string
@@ -171,6 +214,7 @@ export async function decodeVin(
     make: r.Make ? titleCase(r.Make) : '',
     model: r.Model ?? '',
     year: r.ModelYear ?? '',
+    engineCode: r.EngineModel ?? '',
     bodyClass: r.BodyClass ?? '',
     engine: [displacement, cylinders].filter(Boolean).join(' '),
     fuel: r.FuelTypePrimary ?? '',
