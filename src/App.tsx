@@ -9,7 +9,7 @@ function App() {
         <p>Starter app — connected to Netlify + Supabase</p>
         <ConnectionStatus />
       </header>
-
+dsddddddddddddddddddddddddddddddddddddddddddddddddddd
       <section className="card">
         <h2>You're set up</h2>
         <p>
