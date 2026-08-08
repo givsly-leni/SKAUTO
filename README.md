@@ -63,6 +63,16 @@ vPIC is a US database, so a model sold only outside the US may be missing.
 Both fields are comboboxes that accept free text, so an unlisted model can
 always be typed in by hand.
 
+## Service history
+
+The `vehicles` row holds a car's *current* state. Every workshop visit is
+appended to `service_visits` instead of overwriting it — date, kilometers,
+cost, parts changed and notes — so a car returning after a year keeps its full
+record. Adding a visit bumps the vehicle's headline mileage forward, but never
+backwards.
+
+Customers see the same timeline read-only for cars they've claimed.
+
 ## Pages
 
 | Route | What it does |
@@ -72,6 +82,7 @@ always be typed in by hand.
 | `#/vehicles/new` | Add a car |
 | `#/vehicles/:id` | Detail view, with edit and delete |
 | `#/vehicles/:id/edit` | Edit a car |
+| `#/vehicles/:id/history/new` | Log a new visit |
 
 Navigation is a bottom tab bar on phone, a top bar on laptop.
 

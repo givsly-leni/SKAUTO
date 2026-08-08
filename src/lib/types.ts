@@ -63,3 +63,34 @@ export const emptyVehicleInput = (): VehicleInput => ({
   notes: '',
   restored_parts: [],
 })
+
+/** One workshop visit for a vehicle. The vehicle record holds the current
+ *  state; visits are the permanent log of everything done over time. */
+export interface ServiceVisit {
+  id: string
+  vehicle_id: string
+  user_id: string
+  visited_at: string
+  odometer_km: number | null
+  cost: number
+  restored_parts: string[]
+  notes: string | null
+  created_at: string
+}
+
+export interface ServiceVisitInput {
+  visited_at: string
+  odometer_km: string
+  cost: string
+  restored_parts: string[]
+  notes: string
+}
+
+export const emptyVisitInput = (): ServiceVisitInput => ({
+  // Defaults to today — a visit is normally logged as it happens.
+  visited_at: new Date().toISOString().slice(0, 10),
+  odometer_km: '',
+  cost: '',
+  restored_parts: [],
+  notes: '',
+})

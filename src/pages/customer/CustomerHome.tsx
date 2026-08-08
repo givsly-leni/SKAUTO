@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listMyVehicles } from '../../lib/account'
-import type { Vehicle } from '../../lib/types'
+import { listVisitsForVehicles } from '../../lib/visits'
+import type { ServiceVisit, Vehicle } from '../../lib/types'
 import {
   formatCar,
   formatDate,
@@ -10,8 +11,9 @@ import {
 } from '../../lib/format'
 import { STATUS_META } from '../../lib/types'
 import StatusBadge from '../../components/StatusBadge'
+import HistoryTimeline from '../../components/HistoryTimeline'
 
-function VehicleCard({ v }: { v: Vehicle }) {
+function VehicleCard({ v, visits }: { v: Vehicle; visits: ServiceVisit[] }) {
   const car = formatCar(v.make, v.model)
   return (
     <article className="cust-card">
@@ -89,6 +91,14 @@ function VehicleCard({ v }: { v: Vehicle }) {
         </section>
       )}
 
+      <section className="detail-block">
+        <h3>Service history</h3>
+        <HistoryTimeline
+          visits={visits}
+          emptyText="No previous visits recorded yet."
+        />
+      </section>
+
       {v.notes && (
         <section className="detail-block">
           <h3>Notes from the garage</h3>
@@ -101,12 +111,16 @@ function VehicleCard({ v }: { v: Vehicle }) {
 
 export default function CustomerHome({ reloadKey }: { reloadKey: number }) {
   const [vehicles, setVehicles] = useState<Vehicle[] | null>(null)
+  const [visits, setVisits] = useState<Record<string, ServiceVisit[]>>({})
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setVehicles(null)
     listMyVehicles()
-      .then(setVehicles)
+      .then(async (rows) => {
+        setVehicles(rows)
+        setVisits(await listVisitsForVehicles(rows.map((r) => r.id)))
+      })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
   }, [reloadKey])
 
@@ -128,7 +142,7 @@ export default function CustomerHome({ reloadKey }: { reloadKey: number }) {
   return (
     <div className="cust-list">
       {vehicles.map((v) => (
-        <VehicleCard key={v.id} v={v} />
+        <VehicleCard key={v.id} v={v} visits={visits[v.id] ?? []} />
       ))}
     </div>
   )

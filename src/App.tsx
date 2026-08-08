@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage'
 import VehiclesPage from './pages/VehiclesPage'
 import VehicleDetailPage from './pages/VehicleDetailPage'
 import VehicleFormPage from './pages/VehicleFormPage'
+import VisitFormPage from './pages/VisitFormPage'
 
 function Routes() {
   const path = usePath()
@@ -25,6 +26,8 @@ function Routes() {
       return <VehicleFormPage key={route.id} id={route.id} />
     case 'vehicle-detail':
       return <VehicleDetailPage key={route.id} id={route.id} />
+    case 'vehicle-history-new':
+      return <VisitFormPage key={route.id} vehicleId={route.id} />
     default:
       return (
         <div className="page empty">

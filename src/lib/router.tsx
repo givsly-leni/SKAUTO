@@ -50,6 +50,7 @@ export type Route =
   | { name: 'vehicle-new' }
   | { name: 'vehicle-detail'; id: string }
   | { name: 'vehicle-edit'; id: string }
+  | { name: 'vehicle-history-new'; id: string }
   | { name: 'not-found' }
 
 export function matchRoute(path: string): Route {
@@ -63,6 +64,9 @@ export function matchRoute(path: string): Route {
     if (segments.length === 2) return { name: 'vehicle-detail', id: segments[1] }
     if (segments.length === 3 && segments[2] === 'edit') {
       return { name: 'vehicle-edit', id: segments[1] }
+    }
+    if (segments.length === 4 && segments[2] === 'history' && segments[3] === 'new') {
+      return { name: 'vehicle-history-new', id: segments[1] }
     }
   }
 

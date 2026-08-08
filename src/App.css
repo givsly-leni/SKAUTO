@@ -1022,3 +1022,91 @@ input[type='date']::-webkit-calendar-picker-indicator {
   opacity: 0.6;
   cursor: pointer;
 }
+
+/* ---------- service history timeline ---------- */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tl-item {
+  position: relative;
+  padding: 0 0 18px 22px;
+  border-left: 2px solid var(--border);
+}
+
+.tl-item:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+
+.tl-marker {
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-elevated);
+}
+
+.tl-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tl-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tl-head strong {
+  font-size: 0.95rem;
+}
+
+.tl-cost {
+  color: var(--accent-light);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.tl-body p {
+  margin: 0;
+}
+
+.tl-notes {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.tl-delete {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.tl-delete:hover {
+  color: #fca5a5;
+}
+
+.tl-total {
+  margin: 4px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}

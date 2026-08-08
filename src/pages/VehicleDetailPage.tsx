@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { deleteVehicle, getVehicle } from '../lib/vehicles'
-import type { Vehicle } from '../lib/types'
+import { deleteVisit, listVisits } from '../lib/visits'
+import type { ServiceVisit, Vehicle } from '../lib/types'
 import {
   formatCar,
   formatDate,
@@ -10,12 +11,14 @@ import {
 } from '../lib/format'
 import { Link, navigate } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
+import HistoryTimeline from '../components/HistoryTimeline'
 
 export default function VehicleDetailPage({ id }: { id: string }) {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
+  const [visits, setVisits] = useState<ServiceVisit[]>([])
 
   useEffect(() => {
     setLoading(true)
@@ -23,7 +26,16 @@ export default function VehicleDetailPage({ id }: { id: string }) {
       .then(setVehicle)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false))
+
+    listVisits(id)
+      .then(setVisits)
+      .catch(() => setVisits([]))
   }, [id])
+
+  async function handleDeleteVisit(visitId: string) {
+    await deleteVisit(visitId)
+    setVisits((prev) => prev.filter((v) => v.id !== visitId))
+  }
 
   async function handleDelete() {
     try {
@@ -58,6 +70,12 @@ export default function VehicleDetailPage({ id }: { id: string }) {
       <div className="detail-actions">
         <Link to={`/vehicles/${vehicle.id}/edit`} className="btn btn-primary btn-sm">
           Edit
+        </Link>
+        <Link
+          to={`/vehicles/${vehicle.id}/history/new`}
+          className="btn btn-ghost btn-sm"
+        >
+          + Add history
         </Link>
         <button
           className="btn btn-danger btn-sm"
@@ -142,6 +160,11 @@ export default function VehicleDetailPage({ id }: { id: string }) {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="detail-block">
+        <h2>Service history</h2>
+        <HistoryTimeline visits={visits} onDelete={(v) => void handleDeleteVisit(v)} />
       </section>
 
       <section className="detail-block">

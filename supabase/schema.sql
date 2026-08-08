@@ -301,3 +301,51 @@ revoke all on function public.normalize_plate(text) from public, anon;
 grant execute on function public.normalize_plate(text) to authenticated;
 revoke all on function public.owner_exists() from public;
 grant execute on function public.owner_exists() to anon, authenticated;
+
+-- ===========================================================================
+-- SERVICE HISTORY
+-- Each time a car comes back, a visit is logged rather than overwriting the
+-- vehicle record, so nothing is ever lost. The vehicle row holds the current
+-- state; service_visits is the permanent log.
+-- ===========================================================================
+create table if not exists public.service_visits (
+  id uuid primary key default gen_random_uuid(),
+  vehicle_id uuid not null references public.vehicles(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+
+  visited_at date not null default current_date,
+  odometer_km integer,
+  cost numeric(10,2) not null default 0,
+  restored_parts text[] not null default '{}',
+  notes text,
+
+  created_at timestamptz not null default now()
+);
+
+create index if not exists service_visits_vehicle_idx
+  on public.service_visits (vehicle_id, visited_at desc);
+
+alter table public.service_visits enable row level security;
+
+create policy "Owner reads visits" on public.service_visits
+  for select using (auth.uid() = user_id and public.is_owner());
+create policy "Owner inserts visits" on public.service_visits
+  for insert with check (auth.uid() = user_id and public.is_owner());
+create policy "Owner updates visits" on public.service_visits
+  for update using (auth.uid() = user_id and public.is_owner())
+  with check (auth.uid() = user_id and public.is_owner());
+create policy "Owner deletes visits" on public.service_visits
+  for delete using (auth.uid() = user_id and public.is_owner());
+
+-- Customers: read-only, and only for vehicles whose plate they have claimed.
+create policy "Customers read visits for claimed vehicles" on public.service_visits
+  for select using (
+    exists (
+      select 1
+        from public.vehicles v
+        join public.customer_plates cp
+          on cp.license_plate = public.normalize_plate(v.license_plate)
+       where v.id = service_visits.vehicle_id
+         and cp.user_id = auth.uid()
+    )
+  );
