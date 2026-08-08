@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { deleteVehicle, getVehicle } from '../lib/vehicles'
 import type { Vehicle } from '../lib/types'
-import { formatDate, formatKm, formatMoney } from '../lib/format'
+import { formatCar, formatDate, formatKm, formatMoney } from '../lib/format'
 import { Link, navigate } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
 
@@ -41,6 +41,9 @@ export default function VehicleDetailPage({ id }: { id: string }) {
       <div className="detail-head">
         <div>
           <h1 className="plate-lg">{vehicle.license_plate}</h1>
+          {formatCar(vehicle.make, vehicle.model) && (
+            <p className="car-line">{formatCar(vehicle.make, vehicle.model)}</p>
+          )}
           <p className="muted">{vehicle.customer_name}</p>
         </div>
         <StatusBadge status={vehicle.status} />

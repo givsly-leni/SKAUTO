@@ -6,6 +6,8 @@ export interface Vehicle {
   customer_name: string
   customer_phone: string | null
   license_plate: string
+  make: string | null
+  model: string | null
   vin: string | null
   engine_number: string | null
   odometer_km: number | null
@@ -23,6 +25,8 @@ export interface VehicleInput {
   customer_name: string
   customer_phone: string
   license_plate: string
+  make: string
+  model: string
   vin: string
   engine_number: string
   odometer_km: string
@@ -45,6 +49,8 @@ export const emptyVehicleInput = (): VehicleInput => ({
   customer_name: '',
   customer_phone: '',
   license_plate: '',
+  make: '',
+  model: '',
   vin: '',
   engine_number: '',
   odometer_km: '',

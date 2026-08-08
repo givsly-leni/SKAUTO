@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { listVehicles } from '../lib/vehicles'
 import type { JobStatus, Vehicle } from '../lib/types'
 import { STATUS_META, STATUS_ORDER } from '../lib/types'
-import { formatDate, formatMoney } from '../lib/format'
+import { formatCar, formatDate, formatMoney } from '../lib/format'
 import { Link } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
 
@@ -31,6 +31,7 @@ export default function VehiclesPage() {
         v.customer_name.toLowerCase().includes(q) ||
         (v.vin ?? '').toLowerCase().includes(q) ||
         (v.engine_number ?? '').toLowerCase().includes(q) ||
+        formatCar(v.make, v.model).toLowerCase().includes(q) ||
         (v.customer_phone ?? '').toLowerCase().includes(q)
       )
     })
@@ -50,7 +51,7 @@ export default function VehiclesPage() {
       <input
         className="search"
         type="search"
-        placeholder="Search plate, customer, VIN, engine no, phone…"
+        placeholder="Search plate, car, customer, VIN, phone…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
@@ -94,7 +95,14 @@ export default function VehiclesPage() {
             <li key={v.id}>
               <Link to={`/vehicles/${v.id}`} className="row">
                 <div className="row-main">
-                  <span className="plate">{v.license_plate}</span>
+                  <span className="plate">
+                    {v.license_plate}
+                    {formatCar(v.make, v.model) && (
+                      <span className="row-car">
+                        {formatCar(v.make, v.model)}
+                      </span>
+                    )}
+                  </span>
                   <span className="row-sub">
                     {v.customer_name}
                     {v.customer_phone ? ` · ${v.customer_phone}` : ''}

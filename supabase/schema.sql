@@ -25,6 +25,8 @@ create table if not exists public.vehicles (
 
   -- vehicle identity
   license_plate text not null,
+  make text,
+  model text,
   vin text,
   engine_number text,
   odometer_km integer,
@@ -45,6 +47,7 @@ create index if not exists vehicles_user_id_idx on public.vehicles (user_id);
 create index if not exists vehicles_status_idx on public.vehicles (user_id, status);
 create index if not exists vehicles_registered_at_idx on public.vehicles (user_id, registered_at desc);
 create index if not exists vehicles_plate_idx on public.vehicles (user_id, lower(license_plate));
+create index if not exists vehicles_make_model_idx on public.vehicles (user_id, lower(make), lower(model));
 
 -- keep updated_at fresh on every write
 create or replace function public.set_updated_at()

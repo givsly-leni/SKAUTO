@@ -34,6 +34,24 @@ job status (scheduled / in progress / completed), cost, restored parts (a
 list), and free-text notes. The registration date is set automatically by the
 database, as is `updated_at` on every edit.
 
+## Vehicle make / model data
+
+Make and model suggestions come from the **NHTSA vPIC** database
+(`vpic.nhtsa.dot.gov/api`) — public, free, no API key, no rate limit, and
+CORS-enabled so the browser calls it directly. `src/lib/vehicleApi.ts` wraps
+three uses:
+
+- list makes across cars, trucks and MPVs
+- list models for a chosen make
+- decode a VIN into make / model / year, plus engine and body details
+
+Responses are cached in `localStorage` for 30 days, so the pickers are instant
+after first use and keep working offline.
+
+vPIC is a US database, so a model sold only outside the US may be missing.
+Both fields are comboboxes that accept free text, so an unlisted model can
+always be typed in by hand.
+
 ## Pages
 
 | Route | What it does |

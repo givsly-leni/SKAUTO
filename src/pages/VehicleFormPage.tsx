@@ -9,7 +9,9 @@ import {
 import type { JobStatus, VehicleInput } from '../lib/types'
 import { STATUS_META, STATUS_ORDER, emptyVehicleInput } from '../lib/types'
 import { Link, navigate } from '../lib/router'
+import { decodeVin, fetchMakes, fetchModels } from '../lib/vehicleApi'
 import PartsInput from '../components/PartsInput'
+import Combobox from '../components/Combobox'
 
 export default function VehicleFormPage({ id }: { id?: string }) {
   const editing = Boolean(id)
@@ -17,6 +19,14 @@ export default function VehicleFormPage({ id }: { id?: string }) {
   const [loading, setLoading] = useState(editing)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Reference data from the NHTSA vPIC database
+  const [makes, setMakes] = useState<string[]>([])
+  const [models, setModels] = useState<string[]>([])
+  const [makesLoading, setMakesLoading] = useState(true)
+  const [modelsLoading, setModelsLoading] = useState(false)
+  const [lookupNote, setLookupNote] = useState<string | null>(null)
+  const [decoding, setDecoding] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -29,6 +39,64 @@ export default function VehicleFormPage({ id }: { id?: string }) {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchMakes(ctrl.signal)
+      .then(setMakes)
+      .catch(() => setMakes([]))
+      .finally(() => setMakesLoading(false))
+    return () => ctrl.abort()
+  }, [])
+
+  const make = form.make
+  useEffect(() => {
+    if (!make.trim()) {
+      setModels([])
+      return
+    }
+    const ctrl = new AbortController()
+    setModelsLoading(true)
+    fetchModels(make, ctrl.signal)
+      .then(setModels)
+      .catch(() => setModels([]))
+      .finally(() => setModelsLoading(false))
+    return () => ctrl.abort()
+  }, [make])
+
+  async function handleDecodeVin() {
+    setLookupNote(null)
+    setDecoding(true)
+    try {
+      const details = await decodeVin(form.vin)
+      if (!details) {
+        setLookupNote('No match for that VIN in the vehicle database.')
+        return
+      }
+      setForm((prev) => ({
+        ...prev,
+        make: details.make || prev.make,
+        model: details.model || prev.model,
+        // The database gives a model year; keep any date already entered.
+        vehicle_date:
+          prev.vehicle_date || (details.year ? `${details.year}-01-01` : ''),
+      }))
+      const extras = [details.bodyClass, details.engine, details.fuel]
+        .filter(Boolean)
+        .join(' · ')
+      setLookupNote(
+        `Found ${[details.year, details.make, details.model]
+          .filter(Boolean)
+          .join(' ')}${extras ? ` — ${extras}` : ''}`,
+      )
+    } catch (err) {
+      setLookupNote(
+        err instanceof Error ? err.message : 'Could not reach the VIN database.',
+      )
+    } finally {
+      setDecoding(false)
+    }
+  }
 
   function set<K extends keyof VehicleInput>(key: K, value: VehicleInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -104,17 +172,63 @@ export default function VehicleFormPage({ id }: { id?: string }) {
             />
           </label>
 
-          <label className="field">
-            <span>VIN (chassis number)</span>
-            <input
-              type="text"
-              className="mono"
-              value={form.vin}
-              onChange={(e) => set('vin', e.target.value)}
-              autoCapitalize="characters"
-              maxLength={17}
+          <div className="field">
+            <span>Make</span>
+            <Combobox
+              value={form.make}
+              onChange={(v) => {
+                setForm((prev) =>
+                  // Changing make invalidates the chosen model.
+                  prev.make === v ? prev : { ...prev, make: v, model: '' },
+                )
+              }}
+              options={makes}
+              loading={makesLoading}
+              placeholder="Search or type a make"
             />
-          </label>
+          </div>
+
+          <div className="field">
+            <span>Model</span>
+            <Combobox
+              value={form.model}
+              onChange={(v) => set('model', v)}
+              options={models}
+              loading={modelsLoading}
+              placeholder={
+                form.make ? 'Search or type a model' : 'Type a model'
+              }
+              hint={
+                form.make && !modelsLoading && models.length === 0
+                  ? 'No models listed for this make — type it in.'
+                  : undefined
+              }
+            />
+          </div>
+
+          <div className="field">
+            <span>VIN (chassis number)</span>
+            <div className="vin-row">
+              <input
+                type="text"
+                className="mono"
+                value={form.vin}
+                onChange={(e) => set('vin', e.target.value)}
+                autoCapitalize="characters"
+                maxLength={17}
+                placeholder="17 characters"
+              />
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => void handleDecodeVin()}
+                disabled={decoding || form.vin.trim().length < 11}
+              >
+                {decoding ? '…' : 'Decode'}
+              </button>
+            </div>
+            {lookupNote && <p className="hint">{lookupNote}</p>}
+          </div>
 
           <label className="field">
             <span>Engine number</span>

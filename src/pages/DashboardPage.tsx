@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { listVehicles } from '../lib/vehicles'
 import type { Vehicle } from '../lib/types'
 import { STATUS_META, STATUS_ORDER } from '../lib/types'
-import { formatMoney, formatDate } from '../lib/format'
+import { formatCar, formatMoney, formatDate } from '../lib/format'
 import { Link } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
 
@@ -75,7 +75,11 @@ export default function DashboardPage() {
               <Link to={`/vehicles/${v.id}`} className="row">
                 <div className="row-main">
                   <span className="plate">{v.license_plate}</span>
-                  <span className="row-sub">{v.customer_name}</span>
+                  <span className="row-sub">
+                    {[formatCar(v.make, v.model), v.customer_name]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </span>
                 </div>
                 <div className="row-side">
                   <StatusBadge status={v.status} />

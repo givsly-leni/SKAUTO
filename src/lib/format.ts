@@ -22,3 +22,11 @@ export function formatKm(value: number | null | undefined): string {
   if (value == null) return '—'
   return `${Number(value).toLocaleString()} km`
 }
+
+/** "BMW 323i", or whichever half is present. */
+export function formatCar(
+  make: string | null | undefined,
+  model: string | null | undefined,
+): string {
+  return [make, model].filter(Boolean).join(' ').trim()
+}
