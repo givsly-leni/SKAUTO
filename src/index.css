@@ -6,6 +6,9 @@
   --text: #f3f4f6;
   --text-muted: #9ca3af;
   --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: #a5b4fc;
+  --border: #2a3547;
 }
 
 * {

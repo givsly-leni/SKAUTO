@@ -1,34 +1,59 @@
 import './App.css'
-import ConnectionStatus from './components/ConnectionStatus'
+import { useAuth } from './context/AuthContext'
+import { matchRoute, usePath, Link } from './lib/router'
+import Nav from './components/Nav'
+import AuthPage from './pages/AuthPage'
+import DashboardPage from './pages/DashboardPage'
+import VehiclesPage from './pages/VehiclesPage'
+import VehicleDetailPage from './pages/VehicleDetailPage'
+import VehicleFormPage from './pages/VehicleFormPage'
 
-function App() {
+function Routes() {
+  const path = usePath()
+  const route = matchRoute(path)
+
+  switch (route.name) {
+    case 'dashboard':
+      return <DashboardPage />
+    case 'vehicles':
+      return <VehiclesPage />
+    case 'vehicle-new':
+      return <VehicleFormPage />
+    case 'vehicle-edit':
+      return <VehicleFormPage key={route.id} id={route.id} />
+    case 'vehicle-detail':
+      return <VehicleDetailPage key={route.id} id={route.id} />
+    default:
+      return (
+        <div className="page empty">
+          <p>Page not found.</p>
+          <Link to="/" className="btn btn-primary">
+            Back to overview
+          </Link>
+        </div>
+      )
+  }
+}
+
+export default function App() {
+  const { session, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="splash">
+        <span className="auth-logo">SK</span>
+      </div>
+    )
+  }
+
+  if (!session) return <AuthPage />
+
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <h1>SKAUTO</h1>
-        <p>Starter app — connected to Netlify + Supabase</p>
-        <ConnectionStatus />
-      </header>
-
-      <section className="card">
-        <h2>You're set up</h2>
-        <p>
-          This is a TypeScript + React (Vite) PWA. It installs on iPhone via
-          Add to Home Screen, and works as a normal site on laptop. Edit{' '}
-          <code>src/App.tsx</code> to start building the real app.
-        </p>
-      </section>
-
-      <section className="card">
-        <h2>Next steps</h2>
-        <p>
-          1) Add your Supabase URL/key to <code>.env</code>. 2) Push to
-          GitHub. 3) Connect the repo on Netlify for automatic deploys. See
-          README.md for details.
-        </p>
-      </section>
+    <div className="app">
+      <Nav />
+      <main className="content">
+        <Routes />
+      </main>
     </div>
   )
 }
-
-export default App
