@@ -11,6 +11,7 @@ import {
 } from '../lib/format'
 import { Link } from '../lib/router'
 import StatusBadge from '../components/StatusBadge'
+import { normalizePlate } from '../lib/plate'
 
 type Filter = 'all' | JobStatus
 
@@ -29,11 +30,15 @@ export default function VehiclesPage() {
   const visible = useMemo(() => {
     if (!vehicles) return []
     const q = query.trim().toLowerCase()
+    // Plates are matched on the canonical form so a Greek plate is found by
+    // typing it in English, and vice versa.
+    const plateQuery = normalizePlate(query)
     const rows = vehicles.filter((v) => {
       if (filter !== 'all' && v.status !== filter) return false
       if (!q) return true
       return (
-        v.license_plate.toLowerCase().includes(q) ||
+        (plateQuery !== '' &&
+          normalizePlate(v.license_plate).includes(plateQuery)) ||
         v.customer_name.toLowerCase().includes(q) ||
         (v.vin ?? '').toLowerCase().includes(q) ||
         (v.engine_number ?? '').toLowerCase().includes(q) ||

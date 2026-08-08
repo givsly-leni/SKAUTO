@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient'
 import type { Vehicle, VehicleInput } from './types'
 import { fromDateTimeLocal, toDateTimeLocal } from './format'
+import { normalizePlate } from './plate'
 
 /**
  * Data access layer. Every query is automatically scoped to the signed-in
@@ -33,10 +34,9 @@ function toRow(input: VehicleInput) {
   return {
     customer_name: input.customer_name.trim(),
     customer_phone: input.customer_phone.trim() || null,
-    // Stored without separators so lookups always match (ΒΟΡ-6080 -> ΒΟΡ6080)
-    license_plate: input.license_plate
-      .toUpperCase()
-      .replace(/[\s\-._/]/g, ''),
+    // Canonical form: no separators, Greek letters folded to their Latin
+    // lookalikes, so the same plate is one record whichever keyboard typed it.
+    license_plate: normalizePlate(input.license_plate),
     make: input.make.trim() || null,
     model: input.model.trim() || null,
     vin: input.vin.trim().toUpperCase() || null,

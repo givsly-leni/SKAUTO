@@ -115,11 +115,19 @@ grant execute on function public.signup_available() to anon, authenticated;
 -- customer with read-only access to vehicles whose plate they have proven.
 -- ===========================================================================
 
--- Plates are stored without separators (ΒΟΡ-6080 -> ΒΟΡ6080). Only separators
--- are stripped, never letters, so Greek plates survive intact.
+-- Plates are stored in a canonical form: no separators (ΒΟΡ-6080 -> BOP6080),
+-- and the 14 Greek letters used on plates folded to their Latin lookalikes
+-- (Α Β Ε Ζ Η Ι Κ Μ Ν Ο Ρ Τ Υ Χ -> A B E Z H I K M N O P T Y X). Those pairs are
+-- separate Unicode codepoints but render identically, so without this a plate
+-- typed on a Greek keyboard and the same plate typed on an English one would
+-- be two different records. Letters with no Latin lookalike are left alone.
 create or replace function public.normalize_plate(p text)
 returns text language sql immutable set search_path = '' as $$
-  select upper(regexp_replace(coalesce(p, ''), '[\s\-\._/]', '', 'g'))
+  select translate(
+           upper(regexp_replace(coalesce(p, ''), '[\s\-\._/]', '', 'g')),
+           'ΑΒΕΖΗΙΚΜΝΟΡΤΥΧ',
+           'ABEZHIKMNOPTYX'
+         )
 $$;
 
 -- Phone numbers vary by country code and spacing; compare the last 9 digits.
