@@ -1,5 +1,6 @@
 import './App.css'
 import { useAuth } from './context/AuthContext'
+import { isSupabaseConfigured } from './lib/supabaseClient'
 import { matchRoute, usePath, Link } from './lib/router'
 import Nav from './components/Nav'
 import AuthPage from './pages/AuthPage'
@@ -35,8 +36,32 @@ function Routes() {
   }
 }
 
+function MissingConfig() {
+  return (
+    <div className="auth-wrap">
+      <div className="auth-card">
+        <div className="auth-brand">
+          <span className="auth-logo">SK</span>
+          <h1>SKAUTO</h1>
+        </div>
+        <p className="form-error">
+          This build is missing its database credentials, so it can not connect
+          to Supabase.
+        </p>
+        <p className="hint">
+          Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in the Netlify site
+          environment variables, then trigger a new deploy. They are read at
+          build time, so an existing deploy will not pick them up.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const { session, loading } = useAuth()
+
+  if (!isSupabaseConfigured) return <MissingConfig />
 
   if (loading) {
     return (
